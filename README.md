@@ -7,6 +7,18 @@
 
 Install with your favorite plugin manager and add
 
+with packer
+
+```bash
+use {
+  'paopaol/telescope-git-diffs.nvim',
+   requires = {
+     "nvim-lua/plenary.nvim",
+     "sindrets/diffview.nvim",
+   },
+}
+```
+
 ```lua
 require('telescope').load_extension('git_diffs')
 ```
