@@ -2,6 +2,7 @@
 
 [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker of git diffs between commits
 
+![demo](gif/demo.gif)
 
 ## Installation
 
@@ -38,4 +39,3 @@ Lua equivalent:
 ```lua
 require('telescope').extensions.git_diffs.diff_commits()
 ```
-
