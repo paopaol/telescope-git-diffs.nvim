@@ -22,6 +22,7 @@ local function diffview(prompt_bufnr)
 
   local new = string.sub(selections[1].value, 1, 8)
   local old = string.sub(selections[2].value, 1, 8)
+  print(vim.inspect(selections[2]))
   vim.cmd(string.format("DiffviewOpen -uno %s %s", old, new))
 end
 
@@ -30,7 +31,7 @@ local function diff_commits(opts)
   opts.entry_maker = vim.F.if_nil(opts.entry_maker, make_entry.gen_from_git_commits(opts))
 
 
-  local git_command = { "git", "log", "--oneline", "--graph", "--decorate", "--all", "." }
+  local git_command = { "git", "log", "--oneline", "--decorate", "--all", "." }
   pickers.new(opts, {
     prompt_title = opts.prompt_title or "git diff_commits",
     finder = finders.new_oneshot_job(git_command, opts),
