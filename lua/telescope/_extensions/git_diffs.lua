@@ -20,9 +20,9 @@ local function diffview(prompt_bufnr)
     return
   end
 
+
   local new = string.sub(selections[1].value, 1, 8)
   local old = string.sub(selections[2].value, 1, 8)
-  print(vim.inspect(selections[2]))
   vim.cmd(string.format("DiffviewOpen -uno %s %s", old, new))
 end
 
