@@ -15,15 +15,22 @@ local function diffview(prompt_bufnr)
   actions.close(prompt_bufnr)
 
 
-  if #selections ~= 2 then
-    utils.notify("diff_commits", { level = "WARN", msg = "must select 2 commits" })
+  if #selections < 1 or #selections > 2 then
+    utils.notify("diff_commits", { level = "WARN", msg = "must select 1 or 2 commits" })
     return
   end
 
 
-  local new = string.sub(selections[1].value, 1, 8)
-  local old = string.sub(selections[2].value, 1, 8)
-  vim.cmd(string.format("DiffviewOpen %s..%s", old, new))
+  local selection1 = string.sub(selections[1].value, 1, 8)
+
+  if #selections == 1 then
+    vim.cmd(string.format("DiffviewOpen %s^!", selection1))
+  else
+    -- Old commit must be the second selection
+    local old = string.sub(selections[2].value, 1, 8)
+    vim.cmd(string.format("DiffviewOpen %s..%s", old, selection1))
+  end
+
   vim.cmd([[stopinsert]])
 end
 
