@@ -21,14 +21,19 @@ local function diffview(prompt_bufnr)
   end
 
 
-  local selection1 = string.sub(selections[1].value, 1, 8)
+  -- Sort by date
+  table.sort(selections, function(a, b)
+    return tonumber(vim.fn.systemlist("git show -s --format=%ct " .. a.value)[1]) <
+           tonumber(vim.fn.systemlist("git show -s --format=%ct " .. b.value)[1])
+  end)
+
+  local old = string.sub(selections[1].value, 1, 8)
 
   if #selections == 1 then
-    vim.cmd(string.format("DiffviewOpen %s^!", selection1))
+    vim.cmd(string.format("DiffviewOpen %s^!", old))
   else
-    -- Old commit must be the second selection
-    local old = string.sub(selections[2].value, 1, 8)
-    vim.cmd(string.format("DiffviewOpen %s..%s", old, selection1))
+    local new = string.sub(selections[2].value, 1, 8)
+    vim.cmd(string.format("DiffviewOpen %s..%s", old, new))
   end
 
   vim.cmd([[stopinsert]])
