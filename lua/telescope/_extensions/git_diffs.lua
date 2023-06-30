@@ -15,15 +15,28 @@ local function diffview(prompt_bufnr)
   actions.close(prompt_bufnr)
 
 
-  if #selections ~= 2 then
-    utils.notify("diff_commits", { level = "WARN", msg = "must select 2 commits" })
+  if #selections > 2 then
+    utils.notify("diff_commits", { level = "WARN", msg = "must select 1 or 2 commits" })
     return
   end
 
 
-  local new = string.sub(selections[1].value, 1, 8)
-  local old = string.sub(selections[2].value, 1, 8)
-  vim.cmd(string.format("DiffviewOpen -uno %s %s", old, new))
+  -- Sort by date
+  table.sort(selections, function(a, b)
+    return tonumber(vim.fn.systemlist("git show -s --format=%ct " .. a.value)[1]) <
+           tonumber(vim.fn.systemlist("git show -s --format=%ct " .. b.value)[1])
+  end)
+
+  local old = #selections == 0 and string.sub(action_state.get_selected_entry().ordinal, 1, 7) or
+                                   string.sub(selections[1].value, 1, 8)
+
+  if #selections == 2 then
+    local new = string.sub(selections[2].value, 1, 8)
+    vim.cmd(string.format("DiffviewOpen %s..%s", old, new))
+  else
+    vim.cmd(string.format("DiffviewOpen %s^!", old))
+  end
+
   vim.cmd([[stopinsert]])
 end
 
