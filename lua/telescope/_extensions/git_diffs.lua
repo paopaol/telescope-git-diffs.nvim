@@ -8,6 +8,17 @@ local action_state = require('telescope.actions.state')
 local utils = require "telescope.utils"
 
 
+M = {}
+
+local setup_opts = {
+  git_command = { "git", "log", "--oneline", "--decorate", "--all", "." }
+}
+
+M.setup = function(opts)
+    setup_opts = vim.tbl_deep_extend("force", setup_opts, opts)
+end
+
+
 local function diffview(prompt_bufnr)
   local picker = action_state.get_current_picker(prompt_bufnr)
   local selections = picker:get_multi_selection()
@@ -40,15 +51,14 @@ local function diffview(prompt_bufnr)
   vim.cmd([[stopinsert]])
 end
 
-local function diff_commits(opts)
+M.diff_commits = function (opts)
   opts = opts or {}
   opts.entry_maker = vim.F.if_nil(opts.entry_maker, make_entry.gen_from_git_commits(opts))
 
 
-  local git_command = { "git", "log", "--oneline", "--decorate", "--all", "." }
   pickers.new(opts, {
     prompt_title = opts.prompt_title or "git diff_commits",
-    finder = finders.new_oneshot_job(git_command, opts),
+    finder = finders.new_oneshot_job(setup_opts.git_command, opts),
     previewer = {
       previewers.git_commit_diff_to_parent.new(opts),
       previewers.git_commit_diff_to_head.new(opts),
@@ -64,7 +74,9 @@ local function diff_commits(opts)
 end
 
 return require('telescope').register_extension {
+  setup = M.setup,
   exports = {
-    diff_commits = diff_commits,
+    diff_commits = M.diff_commits,
   }
 }
+

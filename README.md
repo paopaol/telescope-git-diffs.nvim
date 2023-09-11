@@ -39,3 +39,15 @@ Lua equivalent:
 ```lua
 require('telescope').extensions.git_diffs.diff_commits()
 ```
+
+## Configuration
+
+```lua
+require('telescope').setup {
+    extensions = {
+        git_diffs = {
+            git_command = { "git", "log", "--oneline", "--decorate", "--all", "." } -- list result
+        }
+    }
+}
+```
