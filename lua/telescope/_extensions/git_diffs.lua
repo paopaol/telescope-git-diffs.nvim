@@ -31,12 +31,6 @@ local function diffthis(prompt_bufnr)
   end
 
 
-  -- Sort by date
-  table.sort(selections, function(a, b)
-    return tonumber(vim.fn.systemlist("git show -s --format=%ct " .. a.value)[1]) <
-           tonumber(vim.fn.systemlist("git show -s --format=%ct " .. b.value)[1])
-  end)
-
   local commit = #selections == 0 and string.sub(action_state.get_selected_entry().ordinal, 1, 7) or
                                    string.sub(selections[1].value, 1, 8)
 
@@ -93,10 +87,10 @@ M.diff_commits = function (opts)
     },
     sorter = conf.generic_sorter(opts),
     attach_mappings = opts.attach_mappings or function(_, map)
-      if opts.use_gitsigns then
-        actions.select_default:replace(diffthis)
-      else
+      if opts.use_gitsigns == false then
         actions.select_default:replace(diffview)
+      else
+        actions.select_default:replace(diffthis)
       end
       return true
     end
