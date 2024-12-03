@@ -11,13 +11,39 @@ local utils = require "telescope.utils"
 M = {}
 
 local setup_opts = {
-  git_command = { "git", "log", "--oneline", "--decorate", "--all", "." }
+  git_command = { "git", "log", "--oneline", "--decorate", "--all", "." },
+  use_gitsigns = false,
 }
 
 M.setup = function(opts)
     setup_opts = vim.tbl_deep_extend("force", setup_opts, opts)
 end
 
+local function diffthis(prompt_bufnr)
+  local picker = action_state.get_current_picker(prompt_bufnr)
+  local selections = picker:get_multi_selection()
+
+  actions.close(prompt_bufnr)
+
+  if #selections > 1 then
+    utils.notify("diff_commits", { level = "WARN", msg = "must select only 1 commit" })
+    return
+  end
+
+
+  -- Sort by date
+  table.sort(selections, function(a, b)
+    return tonumber(vim.fn.systemlist("git show -s --format=%ct " .. a.value)[1]) <
+           tonumber(vim.fn.systemlist("git show -s --format=%ct " .. b.value)[1])
+  end)
+
+  local commit = #selections == 0 and string.sub(action_state.get_selected_entry().ordinal, 1, 7) or
+                                   string.sub(selections[1].value, 1, 8)
+
+  vim.cmd(string.format("Gitsigns diffthis %s", commit))
+
+  vim.cmd([[stopinsert]])
+end
 
 local function diffview(prompt_bufnr)
   local picker = action_state.get_current_picker(prompt_bufnr)
@@ -67,7 +93,11 @@ M.diff_commits = function (opts)
     },
     sorter = conf.generic_sorter(opts),
     attach_mappings = opts.attach_mappings or function(_, map)
-      actions.select_default:replace(diffview)
+      if opts.use_gitsigns then
+        actions.select_default:replace(diffthis)
+      else
+        actions.select_default:replace(diffview)
+      end
       return true
     end
   }):find()
