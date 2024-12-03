@@ -34,7 +34,7 @@ local function diffthis(prompt_bufnr)
   local commit = #selections == 0 and string.sub(action_state.get_selected_entry().ordinal, 1, 7) or
                                    string.sub(selections[1].value, 1, 8)
 
-  vim.cmd(string.format("Gitsigns diffthis %s", commit))
+  vim.cmd(string.format("vert Gitsigns diffthis %s", commit))
 
   vim.cmd([[stopinsert]])
 end
