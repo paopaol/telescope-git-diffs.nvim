@@ -13,6 +13,7 @@ M = {}
 
 
 local setup_opts = {
+  use_gitsigns = false,
   git_command = { "git", "log", "--graph", "--oneline", "--decorate", "--all", "." },
   enable_preview_diff = true
 }
@@ -21,6 +22,25 @@ M.setup = function(opts)
   setup_opts = vim.tbl_deep_extend("force", setup_opts, opts)
 end
 
+local function diffthis(prompt_bufnr)
+  local picker = action_state.get_current_picker(prompt_bufnr)
+  local selections = picker:get_multi_selection()
+
+  actions.close(prompt_bufnr)
+
+  if #selections > 1 then
+    utils.notify("diff_commits", { level = "WARN", msg = "must select only 1 commit" })
+    return
+  end
+
+
+  local commit = #selections == 0 and string.sub(action_state.get_selected_entry().ordinal, 1, 7) or
+                                   string.sub(selections[1].value, 1, 8)
+
+  vim.cmd(string.format("vert Gitsigns diffthis %s", commit))
+
+  vim.cmd([[stopinsert]])
+end
 
 local function diffview(prompt_bufnr)
   local picker = action_state.get_current_picker(prompt_bufnr)
@@ -79,7 +99,11 @@ M.diff_commits = function(opts)
     previewer = previewer_list,
     sorter = conf.generic_sorter(opts),
     attach_mappings = opts.attach_mappings or function(_, map)
-      actions.select_default:replace(diffview)
+      if opts.use_gitsigns == false then
+        actions.select_default:replace(diffview)
+      else
+        actions.select_default:replace(diffthis)
+      end
       return true
     end
   }):find()
