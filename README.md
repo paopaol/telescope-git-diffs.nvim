@@ -46,7 +46,7 @@ require('telescope').extensions.git_diffs.diff_commits()
 require('telescope').setup {
     extensions = {
         git_diffs = {
-            git_command = { "git", "log", "--oneline", "--decorate", "--all", "." } -- list result
+            enable_preview_diff = true
         }
     }
 }
