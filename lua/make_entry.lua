@@ -19,7 +19,7 @@ function M.gen_from_git_commits(opts)
 
   local make_display = function(entry)
     return displayer {
-      { entry.value, "TelescopeResultsIdentifier" },
+      { vim.F.if_nil(entry.value, ""), "TelescopeResultsIdentifier" },
       entry.msg,
     }
   end
@@ -34,7 +34,7 @@ function M.gen_from_git_commits(opts)
     local sha, msg = string.match(entry, "([0-9a-zA-Z]+) (.+)")
 
     if not msg then
-      sha = ""
+      sha = nil
       msg = entry
     end
 
